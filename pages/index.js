@@ -71,7 +71,7 @@ const VideoCaptureForm = () => {
       payload.append('video', videoBlob);
 
       // 2) POST to /api/upload-video
-      const response = await fetch('/api/upload-video', {
+      const response = await fetch('http://localhost:3003/api/upload-video', {
         method: 'POST',
         body: payload
       });
