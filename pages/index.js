@@ -56,7 +56,7 @@ const SmartHaulFormCamera = () => {
         <Col md={8}>
           <h2 className="text-center">AI Smart Hauling Request</h2>
           <p className="text-center">
-            Fill out your details below and then tap the camera icon to record a quick video of your junk pile.
+            Fill out your details below and then tap the camera icon to record a quick video of your junk pile. Our AI will instantly estimate your hauling cost based on what it sees.
           </p>
           <Form onSubmit={handleSubmit}>
             <FormGroup>
