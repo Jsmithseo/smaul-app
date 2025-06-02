@@ -1,0 +1,59 @@
+/* Local styles */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+button {
+  flex: 1;
+  margin-right: 10px;
+}
+
+button:last-child {
+  margin-right: 0;
+}
+
+input[type='number'] {
+  margin-top: 10px;
+}
+
+input[type='checkbox'] {
+  margin-right: 10px;
+}
+
+.card-element {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+
+.button-group .btn {
+  flex: 1;
+  margin: 5px;
+}
+
+button[type='submit'] {
+  width: 100%;
+}
+
+/* Global styles */
+:global(h1) {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+a.nav-link {
+  color: #ffffff !important;
+}

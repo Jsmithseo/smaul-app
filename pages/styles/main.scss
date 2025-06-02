@@ -1,0 +1,48 @@
+.brandName {
+  color: #000;
+  font-weight: 700;
+  font-family: avenir;
+}
+
+img.logo {
+  display: none;
+}
+
+img.img-fluid.playbook {
+  max-height: 300px;
+}
+
+.jumbtron.playbook {
+  background-image: url('/playbookbanner.png');
+}
+
+ul li {
+  list-style: none;
+}
+
+.calloutText1 {
+  font-weight: 700;
+  font-style: italic;
+}
+
+.planningcontainer.container {
+  max-width: 80%;
+}
+
+p {
+  text-align: left;
+  padding-bottom: 10px;
+}
+
+h2 {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.callouttext2 {
+  font-weight: bold;
+}
+
+a.nav-link {
+  color: #ffffff !important;
+}
