@@ -1,18 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Form, 
-  FormGroup, 
-  Label, 
-  Input, 
-  Button 
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Button,
+  Spinner,
+  Alert
 } from 'reactstrap';
-import { FaCamera } from 'react-icons/fa';
+import { FaVideo } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.css';
 
-const SmartHaulFormCamera = () => {
+const VideoCaptureForm = () => {
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,34 +22,73 @@ const SmartHaulFormCamera = () => {
     address: '',
     haulingDate: ''
   });
-  const [preview, setPreview] = useState(null);
+  const [videoBlob, setVideoBlob] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [aiResult, setAiResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Update form text fields
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Open the device's video recorder
   const handleLaunchCamera = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
+  // Handle the recorded video file
   const handleVideoCapture = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('video/')) {
-      setPreview(URL.createObjectURL(file));
+      setVideoBlob(file);
+      setVideoPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+  // Submit form + video to backend
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you can send `formData` and `preview` to your backend or handle as needed
-    console.log('Form Data:', formData);
-    console.log('Captured Video:', preview);
+    if (!videoBlob) {
+      setError('Please record a short video of your junk pile.');
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    setAiResult(null);
+
+    try {
+      // 1) Build FormData
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('phone', formData.phone);
+      payload.append('address', formData.address);
+      payload.append('haulingDate', formData.haulingDate);
+      payload.append('video', videoBlob);
+
+      // 2) POST to /api/upload-video
+      const response = await fetch('/api/upload-video', {
+        method: 'POST',
+        body: payload
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      // 3) Parse JSON
+      const resultJson = await response.json();
+      setAiResult(resultJson);
+    } catch (err) {
+      console.error(err);
+      setError('There was an error uploading or processing your video.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,7 +97,8 @@ const SmartHaulFormCamera = () => {
         <Col md={8}>
           <h2 className="text-center">AI Smart Hauling Request</h2>
           <p className="text-center">
-            Fill out your details below and then tap the camera icon to record a quick video of your junk pile. Our AI will instantly estimate your hauling cost based on what it sees.
+            Fill out your details below and then tap the video icon to record a quick clip of your junk pile.
+            Our AI will analyze the footage and instantly estimate your hauling cost.
           </p>
           <Form onSubmit={handleSubmit}>
             <FormGroup>
@@ -109,8 +151,8 @@ const SmartHaulFormCamera = () => {
 
             <div className="text-center mt-4">
               <Button color="primary" onClick={handleLaunchCamera}>
-                <FaCamera size={20} style={{ marginRight: '8px' }} />
-                Launch Camera
+                <FaVideo size={20} style={{ marginRight: '8px' }} />
+                Launch Video Recorder
               </Button>
               <input
                 type="file"
@@ -122,11 +164,11 @@ const SmartHaulFormCamera = () => {
               />
             </div>
 
-            {preview && (
+            {videoPreview && (
               <div className="mt-4 text-center">
                 <h5>Video Preview:</h5>
                 <video
-                  src={preview}
+                  src={videoPreview}
                   controls
                   style={{ width: '100%', maxWidth: '400px', borderRadius: '10px' }}
                 />
@@ -134,15 +176,36 @@ const SmartHaulFormCamera = () => {
             )}
 
             <div className="text-center mt-4">
-              <Button color="success" type="submit">
-                Submit Request
+              <Button color="success" type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Spinner size="sm" color="light" /> Processing…
+                  </>
+                ) : (
+                  'Submit Request'
+                )}
               </Button>
             </div>
           </Form>
+
+          {error && (
+            <Alert color="danger" className="mt-4 text-center">
+              {error}
+            </Alert>
+          )}
+
+          {aiResult && (
+            <div className="mt-5">
+              <h4>AI Estimate Result:</h4>
+              <p><strong>Estimated Cost:</strong> ${aiResult.estimate.toFixed(2)}</p>
+              <p><strong>Detected Items:</strong> {aiResult.objects.join(', ')}</p>
+              {aiResult.message && <p><em>{aiResult.message}</em></p>}
+            </div>
+          )}
         </Col>
       </Row>
     </Container>
   );
 };
 
-export default SmartHaulFormCamera;
+export default VideoCaptureForm;
