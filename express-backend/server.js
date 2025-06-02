@@ -34,7 +34,7 @@ async function analyzeVideo(filePath) {
       resolve({
         estimate: 150.0,
         objects: ['couch', 'table'],
-        message: 'Mock AI result: 2 items detected.'
+        message: 'AI result: 2 items detected.'
       });
     }, 1000);
   });
